@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Results Page</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+        <style>
+            body {
+                display: flex;
+                flex-direction: row;
+            }
+            #videoContainer, #tableContainer {
+                margin-top: 20px; 
+            }
+            #videoContainer {
+                flex: 1;
+            }
+            #tableContainer {
+                flex: 1;
+                margin-left: 20px; 
+                overflow-y: auto; 
+                max-height: 400px; 
+                width: 100%; 
+            }
+            table {
+                width: 100%; 
+                border-collapse: collapse;
+                table-layout: fixed; 
+            }
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: left;
+                overflow: hidden; 
+                white-space: nowrap; 
+                text-overflow: ellipsis; 
+            }
+            
+        </style>
+    </head>
+    <body>
+        <div id="videoContainer">
+        {{vo_list[0][1].file_name}}
+        {% if file_type == 'image' %}
+            <img src="{{ url_for('static', filename='outputs/images/' + vo_list[0][1].file_name) }}" alt="Image" width="640" height="400">
+            {% if model_name == 'cattle' %}
+                <p>Cattle Counts: {{vo_list[0][0].cattle_counts}}</p>
+            {% elif model_name == 'pothole' %}
+                <p>Pothole Counts: {{vo_list[0][0].pothole_counts}}</p>
+            {% elif model_name == 'garbage' %}
+                <p>Garbage Counts: {{vo_list[0][0].garbage_counts}}</p>
+            {% endif %}
+            
+        {% elif file_type == 'video' %}
+            <video width="640" height="400" id="videoPlayer" controls>
+                <source src="{{ url_for('static', filename='outputs/videos/' + vo_list[0][1].file_name) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <p id="currentTime">Time Played: 0 s</p>
+
+        {% endif %}
+        </div>
+        <div id="tableContainer">
+        {% if model_name == 'cattle' and file_type == 'video' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Frame ID / Seconds Elapsed</th>
+                    <th>Cattle Counts</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for cattle, file in vo_list %}
+            <tr>
+                <td>{{ cattle.frame_id }}</td>
+                <td>{{ cattle.cattle_counts }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% elif model_name == 'pothole' and file_type == 'video' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Frame ID / Seconds Elapsed</th>
+                    <th>Pothole Counts</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for pothole, file in vo_list %}
+            <tr>
+                <td>{{ pothole.frame_id }}</td>
+                <td>{{ pothole.pothole_counts }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>        
+        {% elif model_name == 'garbage' and file_type == 'video' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Frame ID / Seconds Elapsed</th>
+                    <th>Garbage Counts</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for garbage, file in vo_list %}
+            <tr>
+                <td>{{ garbage.frame_id }}</td>
+                <td>{{ garbage.garbage_counts }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        </div>
+        
+        <script>
+            var video = document.getElementById('videoPlayer');
+
+            video.addEventListener('timeupdate', function() {
+                var timePlayed = Math.round(video.currentTime);
+                document.getElementById('currentTime').innerText = "Time Played: " + timePlayed + " s";
+            });
+        </script>
+    </body>
+</html>
